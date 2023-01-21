@@ -6,7 +6,7 @@
 
 
 
-# Languages or tools to be used:
+# Languages or tools to be used:  C/C++
 
 
 # Supervisor's Name: Mohammad Shafiul Alam Khan
