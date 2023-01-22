@@ -1,4 +1,6 @@
-#include <iostream>
+#include <bits/stdc++.h>
+#include <conio.h>
+#define ColNum 75
 using namespace std;
 
 typedef struct
@@ -6,10 +8,17 @@ typedef struct
     int row;
     int column;
 } location;
+
+void PrintMaze(char Maze[][ColNum+1], int row, int column);
+
 int main()
 {
-    int item = 245;
-    char Maze[23][76] = {
+    int row = 23, column = 75;
+    int food = 245;
+    int input = 0;
+    int proceed = 0;
+    int dead = 0;
+    char Maze[row][(ColNum+1)] = {
     "###########################################################################",
     "# - - G - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - G - - #",
     "########### - - ######### - - ######### - - ################# - - #########",
@@ -54,10 +63,139 @@ int main()
     ghost4.row = 21;
     ghost4.column = 68;
 
-    for(int i=0; i<23; i++)
+    PrintMaze(Maze, row, column);
+
+    do{     //check
+        input = getch();
+
+        if(input == 'w')
+        {
+            if(Maze[pacman.row-1][pacman.column] == '#' || (pacman.row-1)<0)
+            {
+                proceed = -1; //what
+            }
+            else
+            {
+                if(Maze[pacman.row-1][pacman.column] == '-')
+                {
+                    Maze[pacman.row-1][pacman.column] = ' ';
+                    food = food-1;
+                }
+
+                if(Maze[pacman.row-1][pacman.column] == 'G')
+                {
+                    //check
+                    Maze[pacman.row][pacman.column] = ' ';
+                    dead = 1;
+                }
+                else{
+                    Maze[pacman.row-1][pacman.column] = '@';
+                    Maze[pacman.row][pacman.column] = ' ';
+                    pacman.row = pacman.row-1;
+                }
+            }
+        }
+
+        else if(input == 'a')
+        {
+            if(Maze[pacman.row][pacman.column-2] == '#'|| (pacman.column-2)<0)   //check
+            {
+                proceed = -1;    //what
+            }
+            else
+            {
+                if(Maze[pacman.row][pacman.column-2] == '-')
+                {
+                    Maze[pacman.row][pacman.column-2] = ' ';
+                    food = food -1;
+                }
+
+                if(Maze[pacman.row][pacman.column-2] == 'G')
+                {
+                    dead = 1;
+                    //check
+                    Maze[pacman.row][pacman.column] = ' ';
+                }
+                else
+                {
+                    Maze[pacman.row][pacman.column] = ' ';
+                    Maze[pacman.row][pacman.column-2] = '@';
+                    pacman.column = pacman.column - 2;
+                }
+            }
+        }
+
+       else if(input == 's')
+        {
+            if(Maze[pacman.row+1][pacman.column] == '#' || pacman.row>23)
+            {
+                proceed = -1;//check
+            }
+            else
+            {
+                if(Maze[pacman.row+1][pacman.column] == '-')
+                {
+                    Maze[pacman.row+1][pacman.column] = ' ';
+                    food = food - 1;
+                }
+
+                if(Maze[pacman.row+1][pacman.column] == 'G')
+                {
+                    //check
+                    Maze[pacman.row][pacman.column] = ' ';
+                    dead = 1;
+                }
+                else
+                {
+                    Maze[pacman.row+1][pacman.column] = '@';
+                    Maze[pacman.row][pacman.column] = ' ';
+                    pacman.row = pacman.row+1;
+                }
+            }
+        }
+
+        else if(input == 'd')
+        {
+            if(Maze[pacman.row][pacman.column+2] == '#'|| (pacman.column+2)>ColNum) // check
+            {
+                proceed = -1;
+            }
+            else
+            {
+                if(Maze[pacman.row][pacman.column+2] == '-')
+                {
+                    Maze[pacman.row][pacman.column+2] = ' ';
+                    food = food-1;
+                }
+
+                if(Maze[pacman.row][pacman.column+2] == 'G')
+                {
+                    //check
+                    Maze[pacman.row][pacman.column] = ' ';
+                    dead;
+                }
+                else
+                {
+                    Maze[pacman.row][pacman.column+2] = '@';
+                    Maze[pacman.row][pacman.column] = ' ';
+                    pacman.column = pacman.column+2;
+                }
+            }
+        }
+    PrintMaze(Maze, row, column);
+
+    if(dead == 1)
+        break;
+
+    }while(1);
+
+    return 0;
+}
+void PrintMaze(char Maze[][ColNum+1], int row, int column)
+{
+    for(int i=0; i<row; i++)
     {
             cout<<Maze[i];
         cout<<endl;
     }
-
 }
