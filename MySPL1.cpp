@@ -20,6 +20,8 @@ int main()
     int input = 0;
     int proceed = 0;
     int dead = 0;
+    int movecount = 0, charinput, advance = 1;
+    char tempMaze[row][(ColNum+1)];
     char Maze[row][(ColNum+1)] = {
     "###########################################################################",
     "# - - G - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - G - - #",
@@ -45,6 +47,12 @@ int main()
     "# - - G - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - G - - #",
     "###########################################################################",
     };
+
+    for(int i=0; i<row; i++)
+    {
+        for(int j=0; j<ColNum+1; j++)
+            tempMaze[i][j] = Maze[i][j];
+    }
     location pacman;
     pacman.row = 11;
     pacman.column= 38;
@@ -65,11 +73,20 @@ int main()
     ghost4.row = 21;
     ghost4.column = 68;
 
+    cout<<endl<<endl<<endl<<endl<<endl<<endl;
+    cout<<"                                                 Press any key";
+    getch();
+    system("cls");
+
     PrintMaze(Maze, row, column);
 
     do{     //check
+            cout<<endl;
+            cout<<"                   ";
             cout<<"press (w, a, s, d) to move";
         input = getch();
+       // if((input=='w'||input=='s'||input=='d'||input=='a')&&input!='#')
+       // movecount++;
 
         if(input == 'w')
         {
@@ -186,23 +203,44 @@ int main()
             }
         }
 
-    system("cls");
+        if(proceed==0)
+            movecount++;
+        proceed = 0;
+
+   //a system("cls");a
 
     PrintMaze(Maze, row, column);
 
     if(dead == 1)
         {
             cout<<endl<<endl<<"OOPS! You hit the ghost."<<endl;
-            cout<<"Score: "<<245-food;
+            cout<<"Score: "<<245-food<<endl;
+            cout<<"Total moves: "<<movecount<<endl;
             break;
+            /*cout<<"Do you want to continue?(y/n) ";
+            cin>>charinput;
+            if(charinput=='n')
+                break;
+            else {
+                for(int i=0; i<row; i++)
+                {
+                    for(int j=0; j<ColNum+1; j++)
+                    Maze[i][j] = tempMaze[i][j];
+                }
+            }*/
         }
     if(food == 0)
     {
-        cout<<"Congratulations! You Won!";
-        break;
+        cout<<"Congratulations! You Won!"<<endl;
+        cout<<"Total moves: "<<movecount<<endl;
+        //cout<<"Do you want to continue?(y/n) ";
+        //cin>>charinput;
+       // if(charinput=='n')
+            break;
+
     }
 
-    }while(1);
+    }while(advance);
 
     return 0;
 }
@@ -210,12 +248,15 @@ void PrintMaze(char Maze[][ColNum+1], int row, int column)
 {
     HANDLE hConsole;
     hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+    system("cls");
+    cout<<endl<<endl<<endl;
     for(int i=0; i<row; i++)
     {
+        cout<<"                   ";
         for(int j=0; j<column; j++)
         {
             if(Maze[i][j]=='#'){
-                SetConsoleTextAttribute(hConsole, 8);
+                SetConsoleTextAttribute(hConsole, 3);
                 cout<<Maze[i][j];
             }
             else if(Maze[i][j]=='-'){
@@ -231,7 +272,7 @@ void PrintMaze(char Maze[][ColNum+1], int row, int column)
                 cout<<Maze[i][j];
             }
              else if(Maze[i][j]=='G'){
-                SetConsoleTextAttribute(hConsole, 1);
+                SetConsoleTextAttribute(hConsole, 12);
                 cout<<Maze[i][j];
             }
         }
