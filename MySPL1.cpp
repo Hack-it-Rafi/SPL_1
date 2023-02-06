@@ -1,5 +1,7 @@
 #include <bits/stdc++.h>
 #include <conio.h>
+//#include<stdlib.h>
+#include <windows.h>
 #define ColNum 75
 using namespace std;
 
@@ -66,6 +68,7 @@ int main()
     PrintMaze(Maze, row, column);
 
     do{     //check
+            cout<<"press (w, a, s, d) to move";
         input = getch();
 
         if(input == 'w')
@@ -172,7 +175,7 @@ int main()
                 {
                     //check
                     Maze[pacman.row][pacman.column] = ' ';
-                    dead;
+                    dead = 1;
                 }
                 else
                 {
@@ -182,10 +185,22 @@ int main()
                 }
             }
         }
+
+    system("cls");
+
     PrintMaze(Maze, row, column);
 
     if(dead == 1)
+        {
+            cout<<endl<<endl<<"OOPS! You hit the ghost."<<endl;
+            cout<<"Score: "<<245-food;
+            break;
+        }
+    if(food == 0)
+    {
+        cout<<"Congratulations! You Won!";
         break;
+    }
 
     }while(1);
 
@@ -193,9 +208,34 @@ int main()
 }
 void PrintMaze(char Maze[][ColNum+1], int row, int column)
 {
+    HANDLE hConsole;
+    hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
     for(int i=0; i<row; i++)
     {
-            cout<<Maze[i];
+        for(int j=0; j<column; j++)
+        {
+            if(Maze[i][j]=='#'){
+                SetConsoleTextAttribute(hConsole, 8);
+                cout<<Maze[i][j];
+            }
+            else if(Maze[i][j]=='-'){
+                SetConsoleTextAttribute(hConsole, 7);
+                cout<<Maze[i][j];
+            }
+             else if(Maze[i][j]==' '){
+                //SetConsoleTextAttribute(hConsole, 2);
+                cout<<Maze[i][j];
+            }
+             else if(Maze[i][j]=='@'){
+                SetConsoleTextAttribute(hConsole, 6);
+                cout<<Maze[i][j];
+            }
+             else if(Maze[i][j]=='G'){
+                SetConsoleTextAttribute(hConsole, 1);
+                cout<<Maze[i][j];
+            }
+        }
+        SetConsoleTextAttribute(hConsole, 7);
         cout<<endl;
     }
 }
