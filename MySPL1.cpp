@@ -12,6 +12,10 @@ typedef struct
 } location;
 
 void PrintMaze(char Maze[][ColNum+1], int row, int column);
+void add_column(position *ghost, int *change, int *dead, int *item, char arr[23][ColNum+1]);
+void cut_column(position *ghost, int *change, int *dead, int *item, char arr[23][ColNum+1]);
+void add_row(position *ghost, int *change, int *dead, int *item, char arr[23][ColNum+1]);
+void cut_row(position *ghost, int *change, int *dead, int *item, char arr[23][ColNum+1]);
 
 int main()
 {
@@ -19,6 +23,7 @@ int main()
     int food = 245;
     int input = 0;
     int proceed = 0;
+    int change = 0;
     int dead = 0;
     int movecount = 0, charinput, advance = 1;
     char tempMaze[row][(ColNum+1)];
@@ -203,6 +208,11 @@ int main()
             }
         }
 
+        if(dead ==0&& proceed==0)
+        {
+
+        }
+
         if(proceed==0)
             movecount++;
         proceed = 0;
@@ -280,3 +290,148 @@ void PrintMaze(char Maze[][ColNum+1], int row, int column)
         cout<<endl;
     }
 }
+
+void add_column(position *ghost, int *change, int *dead, int *item, char arr[23][ColNum+1])
+{
+    if(*change == 0)
+    {
+        if((ghost->column+2)>ColNum||arr[ghost->row][ghost->column+2] == '#'||arr[ghost->row][ghost->column+2]=='G'||arr[ghost->row][ghost->column+1]=='#')
+        {
+            *change = 0; //change
+        }
+        else
+        {
+            if(arr[ghost->row][ghost->column+2]=='@')
+            {
+                *dead = -1;
+            }
+            if(*item)
+            {
+                arr[ghost->row][ghost->column] = '-';
+            }
+            else{
+                arr[ghost->row][ghost->column] = ' ';
+            }
+            if(arr[ghost->row][ghost->column+2] == '-')
+            {
+                *item = 1;
+            }
+            else
+                *item = 0;
+
+            ghost->column = ghost->column+2;
+            arr[ghost->row][ghost->column] = 'G';
+
+            *change = 1;
+        }
+    }
+}
+
+void cut_column(position *ghost, int *change, int *dead, int *item, char arr[23][ColNum+1])
+{
+    if(*change == 0)
+    {
+        if((ghost->column-2)>ColNum||arr[ghost->row][ghost->column-2] == '#'||arr[ghost->row][ghost->column-2]=='G'||arr[ghost->row][ghost->column-1]=='#')
+        {
+            *change = 0; //change
+        }
+        else
+        {
+            if(arr[ghost->row][ghost->column-2]=='@')
+            {
+                *dead = -1;
+            }
+            if(*item)
+            {
+                arr[ghost->row][ghost->column] = '-';
+            }
+            else{
+                arr[ghost->row][ghost->column] = ' ';
+            }
+            if(arr[ghost->row][ghost->column-2] == '-')
+            {
+                *item = 1;
+            }
+            else
+                *item = 0;
+
+            ghost->column = ghost->column-2;
+            arr[ghost->row][ghost->column] = 'G';
+
+            *change = 1;
+        }
+    }
+}
+
+void add_row(position *ghost, int *change, int *dead, int *item, char arr[23][ColNum+1])
+{
+    if(*change == 0)
+    {
+        if((ghost->row+1)>23||arr[ghost->row+1][ghost->column] == '#'||arr[ghost->row+1][ghost->column]=='G')
+        {
+            *change = 0; //change
+        }
+        else
+        {
+            if(arr[ghost->row+1][ghost->column]=='@')
+            {
+                *dead = -1;
+            }
+            if(*item)
+            {
+                arr[ghost->row][ghost->column] = '-';
+            }
+            else{
+                arr[ghost->row][ghost->column] = ' ';
+            }
+            if(arr[ghost->row+1][ghost->column] == '-')
+            {
+                *item = 1;
+            }
+            else
+                *item = 0;
+
+            ghost->row = ghost->row+1;
+            arr[ghost->row][ghost->column] = 'G';
+
+            *change = 1;
+        }
+    }
+}
+
+void cut_row(position *ghost, int *change, int *dead, int *item, char arr[23][ColNum+1])
+{
+    if(*change == 0)
+    {
+        if((ghost->row-1)>23||arr[ghost->row-1][ghost->column] == '#'||arr[ghost->row-1][ghost->column]=='G')
+        {
+            *change = 0; //change
+        }
+        else
+        {
+            if(arr[ghost->row-1][ghost->column]=='@')
+            {
+                *dead = -1;
+            }
+            if(*item)
+            {
+                arr[ghost->row][ghost->column] = '-';
+            }
+            else{
+                arr[ghost->row][ghost->column] = ' ';
+            }
+            if(arr[ghost->row-1][ghost->column] == '-')
+            {
+                *item = 1;
+            }
+            else
+                *item = 0;
+
+            ghost->row = ghost->row-1;
+            arr[ghost->row][ghost->column] = 'G';
+
+            *change = 1;
+        }
+    }
+}
+
