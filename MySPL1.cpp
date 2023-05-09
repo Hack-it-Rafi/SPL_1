@@ -15,6 +15,8 @@ typedef struct
 void PrintMaze(char Maze[][ColNum+1], int row, int column);
 int getInput();
 
+int ghostLogic(location *ghost, location *pacman, char maze[RowNum][ColNum+1]);
+
 void addColumn(location *ghost, int *change, int *dead, int *foodToken, char maze[RowNum][ColNum+1]);
 void cutColumn(location *ghost, int *change, int *dead, int *foodToken, char maze[RowNum][ColNum+1]);
 void addRow(location *ghost, int *change, int *dead, int *foodToken, char maze[RowNum][ColNum+1]);
@@ -28,15 +30,21 @@ void runGame()
         int input = 0;
         int food = 245;
         int moveCount = 0;
-        int proceed = 0; //printFlag
-        int dead = 0; //deathFlag
-        int change = 0;//changeFlag
+        int proceed = 0;
+        int dead = 0;
+        int change = 0;
         int random;
 
         int foodToken1 = 0;
         int foodToken2 = 0;
         int foodToken3 = 0;
         int foodToken4 = 0;
+
+        int direction = 0;
+        // 1 = up
+        // 2 = left
+        // 3 = down
+        //4 = right
 
         char Maze[row][(ColNum+1)] = {
             "###########################################################################",
@@ -235,9 +243,9 @@ void runGame()
             {
                 moveCount++;
             }
-// if get extra time
-//will add general function,
-// ghost 1
+
+
+
             if(proceed == 0&&dead == 0)
             {
                 random = rand()%10;
@@ -467,81 +475,36 @@ void runGame()
                 }
             }
 
-            change = 1;
+            change = 0;
 
             if(proceed == 0&&dead == 0)
             {
-                random = rand()%10;
-                if(random == 0)
-                {
-                    addColumn(&ghost4, &change, &dead, &foodToken4, Maze);
-                }
-                if(random == 1)
-                {
-                    addRow(&ghost4, &change, &dead, &foodToken4, Maze);
-                }
-                if(random == 2)
-                {
-                    cutColumn(&ghost4, &change, &dead, &foodToken4, Maze);
-                }
-                if(random == 3)
+                direction = ghostLogic(&ghost4, &pacman, Maze);
+                if(direction == 1)
                 {
                     cutRow(&ghost4, &change, &dead, &foodToken4, Maze);
                 }
-                if(random>3&&random<7)
+                else if(direction == 2)
                 {
-                    if((ghost4.column - pacman.column)<0)
+                    cutColumn(&ghost4, &change, &dead, &foodToken4, Maze);
+                }
+                else if(direction == 3)
+                {
+                    addRow(&ghost4, &change, &dead, &foodToken4, Maze);
+                }
+                else if(direction == 4)
+                {
+                    addColumn(&ghost4, &change, &dead, &foodToken4, Maze);
+                }
+
+                if(!change)
                     {
                         addColumn(&ghost4, &change, &dead, &foodToken4, Maze);
-                    }
-                    if((ghost4.column - pacman.column)>0)
-                    {
                         cutColumn(&ghost4, &change, &dead, &foodToken4, Maze);
-                    }
-                    if((ghost4.row - pacman.row)<0)
-                    {
                         addRow(&ghost4, &change, &dead, &foodToken4, Maze);
-                    }
-                    if((ghost4.row - pacman.row)>0)
-                    {
                         cutRow(&ghost4, &change, &dead, &foodToken4, Maze);
                     }
 
-                    if(!change)
-                    {
-                        addColumn(&ghost4, &change, &dead, &foodToken4, Maze);
-                        cutColumn(&ghost4, &change, &dead, &foodToken4, Maze);
-                        addRow(&ghost4, &change, &dead, &foodToken4, Maze);
-                        cutRow(&ghost4, &change, &dead, &foodToken4, Maze);
-                    }
-                }
-                if(random>6)
-                {
-                    if((ghost4.row - pacman.row)<0)
-                    {
-                        addRow(&ghost4, &change, &dead, &foodToken4, Maze);
-                    }
-                    if((ghost4.row - pacman.row)>0)
-                    {
-                        cutRow(&ghost4, &change, &dead, &foodToken4, Maze);
-                    }
-                    if((ghost4.column - pacman.column)<0)
-                    {
-                        addColumn(&ghost4, &change, &dead, &foodToken4, Maze);
-                    }
-                    if((ghost4.column - pacman.column)>0)
-                    {
-                        cutColumn(&ghost4, &change, &dead, &foodToken4, Maze);
-                    }
-
-                    if(!change)
-                    {
-                        addRow(&ghost4, &change, &dead, &foodToken4, Maze);
-                        cutRow(&ghost4, &change, &dead, &foodToken4, Maze);
-                        addColumn(&ghost4, &change, &dead, &foodToken4, Maze);
-                        cutColumn(&ghost4, &change, &dead, &foodToken4, Maze);
-                    }
-                }
             }
 
             change = 0;
@@ -647,6 +610,99 @@ int getInput()
     int x;
     x = getch();
     return x;
+}
+
+int ghostLogic(location *ghost, location *pacman, char maze[RowNum][ColNum+1])
+{
+    int gX = ghost->row;
+    int gY = ghost->column;
+
+    int pX = pacman->row;
+    int pY = pacman->column;
+
+    int loc1 = gX-1;
+    int loc2 = gY-2;
+    int loc3 = gX +1;
+    int loc4 = gY + 2;
+
+    int temp;
+
+    double loc1dis = 9999.00, loc2dis = 9999.00, loc3dis = 9999.00, loc4dis = 9999.00;
+
+    if(maze[loc1][gY] != '#' || maze[loc1][gY] != 'G')
+    {
+        loc1dis = sqrt(((pX - loc1)*(pX-loc1) + (pY-gY)*(pY-gY)));
+    }
+
+    if(maze[gX][loc2] != '#' || maze[gX][loc2] != 'G')
+    {
+        loc2dis = sqrt(((pX - gX)*(pX- gX) + (pY- loc2)*(pY- loc2)));
+    }
+
+    if(maze[loc3][gY] != '#' || maze[loc3][gY] != 'G')
+    {
+        loc3dis = sqrt(((pX - loc3)*(pX-loc3) + (pY-gY)*(pY-gY)));
+    }
+
+    if(maze[gX][loc4] != '#' || maze[gX][loc4] != 'G')
+    {
+        loc4dis = sqrt(((pX - gX)*(pX- gX) + (pY- loc4)*(pY- loc4)));
+    }
+
+    if(loc1dis == loc3dis)
+    {
+        temp = rand()%2;
+        if(temp == 0)
+        {
+            if(loc1dis<loc2dis&&loc1dis<loc4dis)
+            {
+                return 1;
+            }
+        }
+        else
+        {
+            if(loc1dis<loc2dis&&loc1dis<loc4dis)
+            {
+                return 3;
+            }
+        }
+    }
+
+    if(loc2dis == loc4dis)
+    {
+        temp = rand()%2;
+        if(temp == 0)
+        {
+            if(loc2dis<loc3dis&&loc2dis<loc1dis)
+            {
+                return 2;
+            }
+        }
+        else
+        {
+            if(loc2dis<loc3dis&&loc2dis<loc1dis)
+            {
+                return 4;
+            }
+        }
+    }
+
+    if(loc1dis>loc2dis&&loc1dis>loc3dis&&loc1dis>loc4dis)
+    {
+        return 1;
+    }
+    else if(loc2dis>loc1dis&&loc2dis>loc3dis&&loc2dis>loc4dis)
+    {
+        return 2;
+    }
+    else if(loc3dis>loc1dis&&loc3dis>loc2dis&&loc3dis>loc4dis)
+    {
+        return 3;
+    }
+    else
+    {
+        return 4;
+    }
 }
 
 void addColumn(location *ghost, int *change, int *dead, int *foodToken, char maze[RowNum][ColNum+1])
