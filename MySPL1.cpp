@@ -12,9 +12,46 @@ typedef struct
     int column;
 } location;
 
+struct Cell
+{
+    int x;
+    int y;
+    int f;
+    int g;
+    int h;
+}cell[RowNum*ColNum];
+
+struct Status
+{
+    int open;
+    int closed;
+    int cellInx;
+}status[RowNum+1][ColNum+1];
+
+int isValid(int x, int y)
+{
+    int p = false;
+
+    if(x>0&&x<RowNum&&y>0&&y<ColNum)
+        p = true;
+    return p;
+}
 void PrintMaze(char Maze[][ColNum+1], int row, int column);
 int getInput();
 
+int gcost(int traveled)
+{
+    return traveled;
+}
+int hcost(int x, int y, int px, int py, char maze[RowNum][ColNum+1])
+{
+    if(maze[x][y] == '#' || maze[px][py] == '#')
+        return INT_MAX;
+
+    return abs(px-x)+(abs(py-y));
+}
+
+int minPath(int ux, int uy, int px, int py, char maze[RowNum][ColNum+1]);
 int ghostLogic(location *ghost, location *pacman, char maze[RowNum][ColNum+1]);
 
 void addColumn(location *ghost, int *change, int *dead, int *foodToken, char maze[RowNum][ColNum+1]);
@@ -512,7 +549,8 @@ void runGame()
 
             if(!proceed)
             {
-                system("cls");
+                //system("cls");
+                //cout<<endl<<"direction: "<<direction<<endl;
                 PrintMaze(Maze, row, column);
                 cout<<endl<<"Total move: "<<moveCount<<endl;
                 cout<<"Food remaining: "<<food<<endl;
@@ -572,7 +610,7 @@ void PrintMaze(char Maze[][ColNum+1], int row, int column)
 {
     HANDLE hConsole;
     hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
-    system("cls");
+     //system("cls");
     cout<<endl<<endl<<endl;
     for(int i=0; i<row; i++)
     {
@@ -612,6 +650,197 @@ int getInput()
     return x;
 }
 
+int minPath(int ux, int uy, int px, int py, char maze[RowNum][ColNum+1])
+{
+    if(ux==px&&uy==py)
+        return 0;
+
+    for(int i=0; i<RowNum; i++)
+    {
+        for(int j=0; j<ColNum; j++)
+        {
+            status[i][j].open = false;
+            status[i][j].closed = false;
+            status[i][j].cellInx = -1;
+        }
+    }
+
+    int cell_inx = 0, counter = 0;
+
+    status[ux][uy].open = true;
+    status[ux][uy].cellInx = cell_inx;
+
+    cell[cell_inx].x = ux;
+    cell[cell_inx].y = uy;
+    cell[cell_inx].g = gcost(0);
+    cell[cell_inx].h = hcost(ux, uy, px, py, maze);
+    cell[cell_inx].f = cell[cell_inx].g + cell[cell_inx].h;
+
+    int curNodeInx = cell_inx;
+    int minFcost = INT_MAX;
+    int minHcost = cell[cell_inx].h;
+    counter++;
+    while(counter>0)
+    {
+        for(int i=1; i<=cell_inx; i++)
+        {
+            if(status[cell[i].x][cell[i].y].open == true)
+            {
+                int curF = cell[i].f;
+                int curH = cell[i].h;
+
+                if(curF<minFcost||(curF==minFcost&&curH<minHcost))
+                {
+                    minFcost = curF;
+                    minHcost = curH;
+                    curNodeInx = i;
+                }
+            }
+        }
+
+        int X, Y;
+        X= cell[curNodeInx].x;
+        Y = cell[curNodeInx].y;
+
+        status[X][Y].open = false;
+        status[X][Y].closed = true;
+        counter = counter-1;
+
+        if(X==px&&Y==py)
+        {
+            return minFcost;
+        }
+        else
+        {
+            if(isValid(X-1, Y)&&status[X-1][Y].closed!=true&&maze[X-1][Y]!='#')
+            {
+                if(status[X-1][Y].cellInx != -1)
+                {
+                    int g = gcost(cell[curNodeInx].g+1);
+                    int h = hcost(X-1, Y, px, py, maze);
+                    int f = g+h;
+
+                    if(cell[status[X-1][Y].cellInx].f>f)
+                    {
+                        cell[status[X-1][Y].cellInx].f = f;
+                        cell[status[X-1][Y].cellInx].g = g;
+                        cell[status[X-1][Y].cellInx].h = h;
+                    }
+                }
+                else if(status[X-1][Y].open == false)
+                {
+                    cell_inx = cell_inx+1;
+                    counter++;
+
+                    status[X-1][Y].open = true;
+                    status[X-1][Y].cellInx = cell_inx;
+
+                    cell[cell_inx].x = X-1;
+                    cell[cell_inx].y = Y;
+                    cell[cell_inx].g = gcost(cell[curNodeInx].g+1);
+                    cell[cell_inx].h = hcost(X-1, Y, px, py, maze);
+                    cell[cell_inx].f = cell[cell_inx].g+cell[cell_inx].h;
+                }
+            }
+
+            if(isValid(X+1, Y)&&status[X+1][Y].closed!=true&&maze[X+1][Y]!='#')
+            {
+                if(status[X+1][Y].cellInx != -1)
+                {
+                    int g = gcost(cell[curNodeInx].g+1);
+                    int h = hcost(X+1, Y, px, py, maze);
+                    int f = g+h;
+
+                    if(cell[status[X+1][Y].cellInx].f>f)
+                    {
+                        cell[status[X+1][Y].cellInx].f = f;
+                        cell[status[X+1][Y].cellInx].g = g;
+                        cell[status[X+1][Y].cellInx].h = h;
+                    }
+                }
+                else if(status[X+1][Y].open == false)
+                {
+                    cell_inx = cell_inx+1;
+                    counter = counter+1;
+
+                    status[X+1][Y].open = true;
+                    status[X+1][Y].cellInx = cell_inx;
+
+                    cell[cell_inx].x = X+1;
+                    cell[cell_inx].y = Y;
+                    cell[cell_inx].g = gcost(cell[curNodeInx].g+1);
+                    cell[cell_inx].h = hcost(X+1, Y, px, py, maze);
+                    cell[cell_inx].f = cell[cell_inx].g+cell[cell_inx].h;
+                }
+            }
+
+            if(isValid(X, Y-2)&&status[X][Y-2].closed!=true&&maze[X][Y-2]!='#')
+            {
+                if(status[X][Y-2].cellInx != -1)
+                {
+                    int g = gcost(cell[curNodeInx].g+1);
+                    int h = hcost(X, Y-2, px, py, maze);
+                    int f = g+h;
+
+                    if(cell[status[X][Y-2].cellInx].f>f)
+                    {
+                        cell[status[X][Y-2].cellInx].f = f;
+                        cell[status[X][Y-2].cellInx].g = g;
+                        cell[status[X][Y-2].cellInx].h = h;
+                    }
+                }
+                else if(status[X][Y-2].open == false)
+                {
+                    cell_inx = cell_inx+1;
+                    counter = counter +1;
+
+                    status[X][Y-2].open = true;
+                    status[X][Y-2].cellInx = cell_inx;
+
+                    cell[cell_inx].x = X;
+                    cell[cell_inx].y = Y-2;
+                    cell[cell_inx].g = gcost(cell[curNodeInx].g+1);
+                    cell[cell_inx].h = hcost(X, Y-2, px, py, maze);
+                    cell[cell_inx].f = cell[cell_inx].g+cell[cell_inx].h;
+                }
+            }
+
+            if(isValid(X, Y+2)&&status[X][Y+2].closed!=true&&maze[X][Y+2]!='#')
+            {
+                if(status[X][Y+2].cellInx != -1)
+                {
+                    int g = gcost(cell[curNodeInx].g+1);
+                    int h = hcost(X, Y+2, px, py, maze);
+                    int f = g+h;
+
+                    if(cell[status[X][Y+2].cellInx].f>f)
+                    {
+                        cell[status[X][Y+2].cellInx].f = f;
+                        cell[status[X][Y+2].cellInx].g = g;
+                        cell[status[X][Y+2].cellInx].h = h;
+                    }
+                }
+                else if(status[X][Y+1].open == false)
+                {
+                    cell_inx = cell_inx+2;
+                    counter = counter +2;
+
+                    status[X][Y+2].open = true;
+                    status[X][Y+2].cellInx = cell_inx;
+
+                    cell[cell_inx].x = X;
+                    cell[cell_inx].y = Y+2;
+                    cell[cell_inx].g = gcost(cell[curNodeInx].g+1);
+                    cell[cell_inx].h = hcost(X, Y+2, px, py, maze);
+                    cell[cell_inx].f = cell[cell_inx].g+cell[cell_inx].h;
+                }
+            }
+
+        }
+    }
+    return minFcost;
+}
+
 int ghostLogic(location *ghost, location *pacman, char maze[RowNum][ColNum+1])
 {
     int gX = ghost->row;
@@ -625,84 +854,35 @@ int ghostLogic(location *ghost, location *pacman, char maze[RowNum][ColNum+1])
     int loc3 = gX +1;
     int loc4 = gY + 2;
 
-    int temp;
+    int a = INT_MAX;
+    int b = INT_MAX;
+    int c = INT_MAX;
+    int d = INT_MAX;
 
-    double loc1dis = 9999.00, loc2dis = 9999.00, loc3dis = 9999.00, loc4dis = 9999.00;
+    int a1 = 1, b2 = 2, c3 = 3, d4 = 4;
 
-    if(maze[loc1][gY] != '#' || maze[loc1][gY] != 'G')
-    {
-        loc1dis = sqrt(((pX - loc1)*(pX-loc1) + (pY-gY)*(pY-gY)));
-    }
+    cout<<endl;
+    if(loc1>0&&maze[loc1][gY]!='#')
+        a = minPath(loc1, gY, pX, pY, maze);
+        cout<<"a: "<<a<<endl;
+    if(loc2>0&&maze[gX][loc2]!='#')
+        b = minPath(gX, loc2, pX, pY, maze);
+        cout<<"b: "<<b<<endl;
+    if(loc3<RowNum&&maze[loc3][gY]!='#')
+        c = minPath(loc3, gY, pX, pY, maze);
+        cout<<"c: "<<c<<endl;
+    if(loc4<ColNum&&maze[gX][loc4]!='#')
+        d = minPath(gX, loc4, pX, pY, maze);
+        cout<<"d: "<<d<<endl;
 
-    if(maze[gX][loc2] != '#' || maze[gX][loc2] != 'G')
-    {
-        loc2dis = sqrt(((pX - gX)*(pX- gX) + (pY- loc2)*(pY- loc2)));
-    }
-
-    if(maze[loc3][gY] != '#' || maze[loc3][gY] != 'G')
-    {
-        loc3dis = sqrt(((pX - loc3)*(pX-loc3) + (pY-gY)*(pY-gY)));
-    }
-
-    if(maze[gX][loc4] != '#' || maze[gX][loc4] != 'G')
-    {
-        loc4dis = sqrt(((pX - gX)*(pX- gX) + (pY- loc4)*(pY- loc4)));
-    }
-
-    if(loc1dis == loc3dis)
-    {
-        temp = rand()%2;
-        if(temp == 0)
-        {
-            if(loc1dis<loc2dis&&loc1dis<loc4dis)
-            {
-                return 1;
-            }
-        }
-        else
-        {
-            if(loc1dis<loc2dis&&loc1dis<loc4dis)
-            {
-                return 3;
-            }
-        }
-    }
-
-    if(loc2dis == loc4dis)
-    {
-        temp = rand()%2;
-        if(temp == 0)
-        {
-            if(loc2dis<loc3dis&&loc2dis<loc1dis)
-            {
-                return 2;
-            }
-        }
-        else
-        {
-            if(loc2dis<loc3dis&&loc2dis<loc1dis)
-            {
-                return 4;
-            }
-        }
-    }
-
-    if(loc1dis>loc2dis&&loc1dis>loc3dis&&loc1dis>loc4dis)
-    {
+    if(a<=b&&a<=c&&a<=d)
         return 1;
-    }
-    else if(loc2dis>loc1dis&&loc2dis>loc3dis&&loc2dis>loc4dis)
-    {
+    else if(b<=a&&b<=c&&b<=d)
         return 2;
-    }
-    else if(loc3dis>loc1dis&&loc3dis>loc2dis&&loc3dis>loc4dis)
-    {
+    else if(c<=a&&c<=b&&c<=d)
         return 3;
-    }
-    else
-    {
+    else if(d<=a&&d<=b&&d<=c)
         return 4;
-    }
 }
 
 void addColumn(location *ghost, int *change, int *dead, int *foodToken, char maze[RowNum][ColNum+1])
