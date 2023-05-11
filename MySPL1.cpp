@@ -65,7 +65,7 @@ void runGame()
     {
         int row = 23, column = 75;
         int input = 0;
-        int food = 245;
+        int food = 246;
         int moveCount = 0;
         int proceed = 0;
         int dead = 0;
@@ -102,7 +102,7 @@ void runGame()
             "#         ##### - ##### - ### - ##### - #     # - ##### - #########       #",
             "#         # - - - ##### - ### - ##### - ####### - ##### - - - - - #       #",
             "#         # - - - ##### - - - - ##### - - - # - - ##### - - ### - #       #",
-            "#         # - - ######### - - ######### - - # - - ##### - - # # - #       #",
+            "#         # - - ######### - - ######### - - - - - ##### - - # # - #       #",
             "#         # - - ######### - - ######### - - # - - ##### - - # # - #       #",
             "########### - - ######### - - ######### - - # - - ##### - - ### - #########",
             "# - - G - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - G - - #",
@@ -281,8 +281,6 @@ void runGame()
                 moveCount++;
             }
 
-
-
             if(proceed == 0&&dead == 0)
             {
                 random = rand()%10;
@@ -439,77 +437,32 @@ void runGame()
 
             if(proceed == 0&&dead == 0)
             {
-                random = rand()%10;
-                if(random == 0)
-                {
-                    addColumn(&ghost3, &change, &dead, &foodToken3, Maze);
-                }
-                if(random == 1)
-                {
-                    addRow(&ghost3, &change, &dead, &foodToken3, Maze);
-                }
-                if(random == 2)
-                {
-                    cutColumn(&ghost3, &change, &dead, &foodToken3, Maze);
-                }
-                if(random == 3)
+                direction = ghostLogic(&ghost3, &pacman, Maze);
+                if(direction == 1)
                 {
                     cutRow(&ghost3, &change, &dead, &foodToken3, Maze);
                 }
-                if(random>3&&random<7)
+                else if(direction == 2)
                 {
-                    if((ghost3.column - pacman.column)<0)
+                    cutColumn(&ghost3, &change, &dead, &foodToken3, Maze);
+                }
+                else if(direction == 3)
+                {
+                    addRow(&ghost3, &change, &dead, &foodToken3, Maze);
+                }
+                else if(direction == 4)
+                {
+                    addColumn(&ghost3, &change, &dead, &foodToken3, Maze);
+                }
+
+                if(!change)
                     {
                         addColumn(&ghost3, &change, &dead, &foodToken3, Maze);
-                    }
-                    if((ghost3.column - pacman.column)>0)
-                    {
                         cutColumn(&ghost3, &change, &dead, &foodToken3, Maze);
-                    }
-                    if((ghost3.row - pacman.row)<0)
-                    {
                         addRow(&ghost3, &change, &dead, &foodToken3, Maze);
-                    }
-                    if((ghost3.row - pacman.row)>0)
-                    {
                         cutRow(&ghost3, &change, &dead, &foodToken3, Maze);
                     }
 
-                    if(!change)
-                    {
-                        addColumn(&ghost3, &change, &dead, &foodToken3, Maze);
-                        cutColumn(&ghost3, &change, &dead, &foodToken3, Maze);
-                        addRow(&ghost3, &change, &dead, &foodToken3, Maze);
-                        cutRow(&ghost3, &change, &dead, &foodToken3, Maze);
-                    }
-                }
-                if(random>6)
-                {
-                    if((ghost3.row - pacman.row)<0)
-                    {
-                        addRow(&ghost3, &change, &dead, &foodToken3, Maze);
-                    }
-                    if((ghost3.row - pacman.row)>0)
-                    {
-                        cutRow(&ghost3, &change, &dead, &foodToken3, Maze);
-                    }
-                    if((ghost3.column - pacman.column)<0)
-                    {
-                        addColumn(&ghost3, &change, &dead, &foodToken3, Maze);
-                    }
-                    if((ghost3.column - pacman.column)>0)
-                    {
-                        cutColumn(&ghost3, &change, &dead, &foodToken3, Maze);
-                    }
-
-                    if(!change)
-                    {
-                        addRow(&ghost3, &change, &dead, &foodToken3, Maze);
-                        cutRow(&ghost3, &change, &dead, &foodToken3, Maze);
-                        addColumn(&ghost3, &change, &dead, &foodToken3, Maze);
-                        cutColumn(&ghost3, &change, &dead, &foodToken3, Maze);
-                    }
-                }
             }
 
             change = 0;
@@ -549,7 +502,7 @@ void runGame()
 
             if(!proceed)
             {
-                //system("cls");
+                system("cls");
                 //cout<<endl<<"direction: "<<direction<<endl;
                 PrintMaze(Maze, row, column);
                 cout<<endl<<"Total move: "<<moveCount<<endl;
@@ -610,7 +563,7 @@ void PrintMaze(char Maze[][ColNum+1], int row, int column)
 {
     HANDLE hConsole;
     hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
-     //system("cls");
+     system("cls");
     cout<<endl<<endl<<endl;
     for(int i=0; i<row; i++)
     {
@@ -859,30 +812,118 @@ int ghostLogic(location *ghost, location *pacman, char maze[RowNum][ColNum+1])
     int c = INT_MAX;
     int d = INT_MAX;
 
-    int a1 = 1, b2 = 2, c3 = 3, d4 = 4;
+    int mini;
 
     cout<<endl;
     if(loc1>0&&maze[loc1][gY]!='#')
         a = minPath(loc1, gY, pX, pY, maze);
-        cout<<"a: "<<a<<endl;
+        cout<<"w: "<<a<<endl;
     if(loc2>0&&maze[gX][loc2]!='#')
         b = minPath(gX, loc2, pX, pY, maze);
-        cout<<"b: "<<b<<endl;
+        cout<<"a: "<<b<<endl;
     if(loc3<RowNum&&maze[loc3][gY]!='#')
         c = minPath(loc3, gY, pX, pY, maze);
-        cout<<"c: "<<c<<endl;
+        cout<<"s: "<<c<<endl;
     if(loc4<ColNum&&maze[gX][loc4]!='#')
         d = minPath(gX, loc4, pX, pY, maze);
         cout<<"d: "<<d<<endl;
 
     if(a<=b&&a<=c&&a<=d)
-        return 1;
+        {
+            mini = 1;
+            if(a==b)
+            {
+                if(hcost(loc1, gY, pX, pY, maze)<hcost(gX, loc2, pX, pY, maze))
+                    mini = mini;
+                else mini = 2;
+            }
+            if(a==c)
+            {
+                if(hcost(loc1, gY, pX, pY, maze)<hcost(loc3, gY, pX, pY, maze))
+                    mini = mini;
+                else mini = 3;
+            }
+            if(a==d)
+            {
+                if(hcost(loc1, gY, pX, pY, maze)<hcost(gX, loc4, pX, pY, maze))
+                    mini = mini;
+                else mini = 4;
+            }
+
+            return mini;
+        }
     else if(b<=a&&b<=c&&b<=d)
-        return 2;
+        {
+             mini = 2;
+            if(b==a)
+            {
+                if(hcost(gX, loc2, pX, pY, maze)<hcost(loc1, gY, pX, pY, maze))
+                    mini = mini;
+                else mini = 1;
+            }
+            if(b==c)
+            {
+                if(hcost(gX, loc2, pX, pY, maze)<hcost(loc3, gY, pX, pY, maze))
+                    mini = mini;
+                else mini = 3;
+            }
+            if(b==d)
+            {
+                if(hcost(gX, loc2, pX, pY, maze)<hcost(gX, loc4, pX, pY, maze))
+                    mini = mini;
+                else mini = 4;
+            }
+
+            return mini;
+        }
     else if(c<=a&&c<=b&&c<=d)
-        return 3;
+        {
+            mini = 3;
+            if(c==a)
+            {
+                if(hcost(loc3, gY, pX, pY, maze)<hcost(loc1, gY, pX, pY, maze))
+                    mini = mini;
+                else mini = 1;
+            }
+            if(b==c)
+            {
+                if(hcost(loc3, gY, pX, pY, maze)<hcost(gX, loc2, pX, pY, maze))
+                    mini = mini;
+                else mini = 2;
+            }
+            if(b==d)
+            {
+                if(hcost(loc3, gY, pX, pY, maze)<hcost(gX, loc4, pX, pY, maze))
+                    mini = mini;
+                else mini = 4;
+            }
+
+            return mini;
+        }
     else if(d<=a&&d<=b&&d<=c)
-        return 4;
+        {
+            mini = 4;
+            if(d==a)
+            {
+                if(hcost(gX, loc4, pX, pY, maze)<hcost(loc1, gY, pX, pY, maze))
+                    mini = mini;
+                else mini = 1;
+            }
+            if(d==b)
+            {
+                if(hcost(gX, loc4, pX, pY, maze)<hcost(gX, loc2, pX, pY, maze))
+                    mini = mini;
+                else mini = 2;
+            }
+            if(d==c)
+            {
+                if(hcost(gX, loc4, pX, pY, maze)<hcost(loc3, gY, pX, pY, maze))
+                    mini = mini;
+                else mini = 3;
+            }
+
+            return mini;
+        }
 }
 
 void addColumn(location *ghost, int *change, int *dead, int *foodToken, char maze[RowNum][ColNum+1])
@@ -890,9 +931,7 @@ void addColumn(location *ghost, int *change, int *dead, int *foodToken, char maz
     if(*change == 0)
     {
         if((ghost->column)>ColNum || maze[ghost->row][ghost->column+2] == '#'|| maze[ghost->row][ghost->column+2] == 'G')
-        {
-
-        }
+        {}
         else
         {
             if(maze[ghost->row][ghost->column+2] == '@')
@@ -930,9 +969,7 @@ void cutColumn(location *ghost, int *change, int *dead, int *foodToken, char maz
     if(*change == 0)
     {
         if((ghost->column)>ColNum || maze[ghost->row][ghost->column-2] == '#'|| maze[ghost->row][ghost->column-2] == 'G')
-        {
-
-        }
+        {}
         else
         {
             if(maze[ghost->row][ghost->column-2] == '@')
@@ -969,9 +1006,7 @@ void addRow(location *ghost, int *change, int *dead, int *foodToken, char maze[R
     if(*change == 0)
     {
         if((ghost->row + 1)>RowNum || maze[ghost->row+1][ghost->column] == '#' || maze[ghost->row+1][ghost->column] == 'G')
-        {
-
-        }
+        {}
         else
         {
             if(maze[ghost->row+1][ghost->column] == '@')
@@ -1009,9 +1044,7 @@ void cutRow(location *ghost, int *change, int *dead, int *foodToken, char maze[R
     if(*change == 0)
     {
         if((ghost->row - 1)>RowNum || maze[ghost->row-1][ghost->column] == '#' || maze[ghost->row-1][ghost->column] == 'G')
-        {
-
-        }
+        {}
         else
         {
             if(maze[ghost->row-1][ghost->column] == '@')
