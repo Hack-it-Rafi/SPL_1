@@ -36,7 +36,7 @@ int isValid(int x, int y)
         p = true;
     return p;
 }
-void PrintMaze(char Maze[][ColNum+1], int row, int column);
+void PrintMaze(char Maze[][ColNum+1], int row, int column, int level);
 int getInput();
 
 int gcost(int traveled)
@@ -61,29 +61,8 @@ void cutRow(location *ghost, int *change, int *dead, int *foodToken, char maze[R
 
 void runGame()
 {
-    while(1)
-    {
-        int row = 23, column = 75;
-        int input = 0;
-        int food = 246;
-        int moveCount = 0;
-        int proceed = 0;
-        int dead = 0;
-        int change = 0;
-        int random;
-
-        int foodToken1 = 0;
-        int foodToken2 = 0;
-        int foodToken3 = 0;
-        int foodToken4 = 0;
-
-        int direction = 0;
-        // 1 = up
-        // 2 = left
-        // 3 = down
-        //4 = right
-
-        char Maze[row][(ColNum+1)] = {
+    int level = 1;
+    char Maze[RowNum][(ColNum+1)] = {
             "###########################################################################",
             "# - - G - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - G - - #",
             "########### - - ######### - - ######### - - ################# - - #########",
@@ -108,6 +87,27 @@ void runGame()
             "# - - G - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - G - - #",
             "###########################################################################"
             };
+    while(1)
+    {
+        int row = 23, column = 75;
+        int input = 0;
+        int food = 246;
+        int moveCount = 0;
+        int proceed = 0;
+        int dead = 0;
+        int change = 0;
+        int random;
+
+        int foodToken1 = 0;
+        int foodToken2 = 0;
+        int foodToken3 = 0;
+        int foodToken4 = 0;
+
+        int direction = 0;
+        // 1 = up
+        // 2 = left
+        // 3 = down
+        //4 = right
 
         location pacman;
         pacman.row = 11;
@@ -135,7 +135,7 @@ void runGame()
 
         system("cls");
 
-        PrintMaze(Maze, row, column);
+        PrintMaze(Maze, row, column, level);
 
         do{
             cout<<endl;
@@ -504,8 +504,9 @@ void runGame()
             {
                 system("cls");
                 //cout<<endl<<"direction: "<<direction<<endl;
-                PrintMaze(Maze, row, column);
+                PrintMaze(Maze, row, column, level);
                 cout<<endl<<"Total move: "<<moveCount<<endl;
+                cout<<"Score: "<<246-food<<endl;
                 cout<<"Food remaining: "<<food<<endl;
             }
 
@@ -522,10 +523,45 @@ void runGame()
         if(!dead)
         {
             cout<<endl<<"Horrah! You won the match!!!!!!!"<<endl;
+            level++;
         }
         else
         {
             cout<<endl<<"You lost, please try again!!!!"<<endl;
+        }
+
+        if(level==2)
+        {
+            char board[RowNum][ColNum+1] = {
+                "###########################################################################",
+            "# - - G - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - G - - #",
+            "# - ########### - ########### - ############# - ########### - ######### - #",
+            "# - #         # - #         # - #           # - #         # - #       # - #",
+            "# - #         # - #         # - #           # - #         # - #       # - #",
+            "# - ########### - ########### - ############# - ########### - ######### - #",
+            "# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - #",
+            "# - ########### - ########### - ############# - ########### - ######### - #",
+            "# - #         # - #         # - #           # - #         # - #       # - #",
+            "# - #         # - #         # - #           # - #         # - #       # - #",
+            "# - ########### - ########### - ############# - ########### - ######### - #",
+            "# - - - - - - - - - - - - - - - - - - @ - - - - - - - - - - - - - - - - - #",
+            "# - ########### - ########### - ############# - ########### - ######### - #",
+            "# - #         # - #         # - #           # - #         # - #       # - #",
+            "# - #         # - #         # - #           # - #         # - #       # - #",
+            "# - ########### - ########### - ############# - ########### - ######### - #",
+            "# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - #",
+            "# - ########### - ########### - ############# - ########### - ######### - #",
+            "# - #         # - #         # - #           # - #         # - #       # - #",
+            "# - #         # - #         # - #           # - #         # - #       # - #",
+            "# - ########### - ########### - ############# - ########### - ######### - #",
+            "# - - G - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - G - - #",
+            "###########################################################################"
+            };
+
+            for(int i=0; i<RowNum; i++)
+                for(int j=0;j<ColNum+1; j++)
+                Maze[i][j] = board[i][j];
+            continue;
         }
 
         cout<<"Press any key";
@@ -559,12 +595,13 @@ int main()
     return 0;
 }
 
-void PrintMaze(char Maze[][ColNum+1], int row, int column)
+void PrintMaze(char Maze[][ColNum+1], int row, int column, int level)
 {
     HANDLE hConsole;
     hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
      system("cls");
     cout<<endl<<endl<<endl;
+    cout<<"                                                    Level: "<<level<<endl;
     for(int i=0; i<row; i++)
     {
         cout<<"                   ";
