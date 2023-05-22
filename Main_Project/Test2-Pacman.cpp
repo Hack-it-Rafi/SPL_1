@@ -41,10 +41,11 @@ void cutColumn(location *ghost, int *change, int *dead, int *foodToken, char maz
 void addRow(location *ghost, int *change, int *dead, int *foodToken, char maze[RowNum][ColNum+1]);
 void cutRow(location *ghost, int *change, int *dead, int *foodToken, char maze[RowNum][ColNum+1]);
 
-void runGame()
+int runGame()
 {
     int level = 1;
     int food = 296;
+    int score = 1000;
     int lvlfood = 296;
     char tempMaze[RowNum][ColNum+1];
     char Maze[RowNum][(ColNum+1)] = {
@@ -117,10 +118,6 @@ void runGame()
         ghost4.row = 21;
         ghost4.column = 68;
 
-        cout<<endl<<endl<<endl<<endl<<endl<<endl;
-        cout<<"                                                 Press any key";
-        getch();
-
         system("cls");
 
         PrintMaze(Maze, row, column, level);
@@ -143,6 +140,7 @@ void runGame()
                     {
                         Maze[pacman.row-1][pacman.column] = ' ';
                         food = food - 1;
+                        score = score+1;
                     }
                     if(Maze[pacman.row-1][pacman.column] == 'G')
                     {
@@ -170,6 +168,7 @@ void runGame()
                     {
                         Maze[pacman.row][pacman.column-2] = ' ';
                         food = food -1;
+                        score = score+1;
                     }
                     if(Maze[pacman.row][pacman.column-2] == 'G')
                     {
@@ -197,6 +196,7 @@ void runGame()
                     {
                         Maze[pacman.row+1][pacman.column] = ' ';
                         food = food - 1;
+                        score = score + 1;
                     }
                     if(Maze[pacman.row+1][pacman.column] == 'G')
                     {
@@ -224,6 +224,7 @@ void runGame()
                     {
                         Maze[pacman.row][pacman.column+2] = ' ';
                         food = food -1;
+                        score = score+1;
                     }
                     if(Maze[pacman.row][pacman.column+2] == 'G')
                     {
@@ -255,7 +256,7 @@ void runGame()
                     }
                     if(input == 'd')
                     {
-                        return;
+                        return score;
                     }
                 }
             }
@@ -522,6 +523,8 @@ void runGame()
 
         if(level==2)
         {
+            score = score + 1000;
+
             char board[RowNum][ColNum+1] = {
                 "###########################################################################",
             "# - - G - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - G - - #",
@@ -547,13 +550,16 @@ void runGame()
             "# - - G - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - G - - #",
             "###########################################################################"
             };
-
             for(int i=0; i<RowNum; i++)
                 for(int j=0;j<ColNum+1; j++)
                 Maze[i][j] = board[i][j];
             continue;
         }
-
+        if(level == 1||level == 3)
+            break;
+        if(level == 2&&dead)
+            break;
+/*
         cout<<"Press any key";
         getch();
 
@@ -568,23 +574,148 @@ void runGame()
             {
                 moveCount = 0;
                 for(int i=0; i<RowNum; i++)
-                   for(int j=0; j<ColNum+1; j++)
+                   for(int j=0; j<ColNum+1; j++){
+                        if(level == 1)
                      Maze[i][j] = tempMaze[i][j];
+                   if(level == 2)
+                    Maze[i][j] = board[i][j];
+                   }
                 break;
             }
             if(input == 'd')
             {
-                return;
+                return score;
             }
         }
+        */
     }
+    return score;
 }
 
 int main()
 {
     system("cls");
-    runGame();
+    int score, level, input;
+    string name;
+    int counter, want;
 
+    while(1){
+    cout<<endl<<endl<<endl<<endl<<endl<<endl;
+    cout<<"                                                 Choose Options:"<<endl<<endl;
+    cout<<"                                                 1. Play Game"<<endl;
+    cout<<"                                                 2. Score Board"<<endl;
+    cout<<"                                                 3. Help"<<endl;
+    cout<<"                                                 4. About"<<endl;
+    cout<<"                                                 5. Exit"<<endl;
+    want = getch();
+    if(want == '1')
+    {
+        system("cls");
+    while(1){
+    FILE *fp;
+    fp = fopen("ScoreFile.txt", "a");
+
+    if(fp == NULL)
+    {
+        cout<<"Error opening the file!"<<endl;
+        return 0;
+    }
+    cout<<endl<<endl<<endl<<endl<<endl<<endl;
+    cout<<"                                                 Press any key";
+        getch();
+    system("cls");
+     cout<<endl<<endl<<endl<<endl<<endl<<endl;
+     cout<<"Enter your name: ";
+     cin>>name;
+     score = runGame();
+    if(score<2000){
+        level = 1;
+        score = score - 1000;
+    }
+    else {
+        level = 2;
+        score = score - 2000;
+    }
+
+    fprintf(fp, "\n%-15s %-15d %-15d", name.c_str(), level, score);
+    fclose(fp);
+    cout<<"Press any key";
+        getch();
+
+        cout<<"Do you want to play again?"<<endl;
+        cout<<"1. Press 'a' to continue"<<endl;
+        cout<<"2. Press 'd' to exit"<<endl;
+
+        while(1)
+        {
+            input = getInput();
+            if(input == 'a')
+            {
+                counter = 1;
+                break;
+            }
+            if(input == 'd')
+            {
+                counter = 0;
+                break;
+            }
+        }
+        if(counter == 0)
+            break;
+    }
+    }
+    else if(want == '2')
+    {
+        system("cls");
+        FILE *fh;
+        fh = fopen("ScoreFile.txt", "r");
+        if(fh != NULL)
+        {
+            char c;
+            while((c = fgetc(fh)) != EOF)
+                putchar(c);
+
+            fclose(fh);
+        }
+        else
+            cout<<"Error opening file."<<endl;
+        cout<<endl<<endl<<"                                         Press any key";
+        getch();
+        system("cls");
+    }
+    else if(want == '3')
+    {
+        system("cls");
+        cout<<endl<<endl<<endl<<endl<<endl<<endl;
+        cout<<"                                             Instructions: "<<endl;
+        cout<<"                               --------------------------------------------"<<endl<<endl;
+        cout<<"                                        Press 'w' to move up;"<<endl;
+        cout<<"                                        Press 's' to move  down;"<<endl;
+        cout<<"                                        Press 'a' to move left;"<<endl;
+        cout<<"                                        Press 'd' to move right;"<<endl<<endl;
+        cout<<endl<<endl<<"                                             Press any key";
+        getch();
+        system("cls");
+    }
+    else if(want == '4')
+    {
+        system("cls");
+        cout<<endl<<endl<<endl<<endl<<endl<<endl;
+        cout<<"                                             Developer: "<<endl;
+        cout<<"                               --------------------------------------------"<<endl<<endl;
+        cout<<"                                        Imamul Hossain Rafi"<<endl;
+        cout<<"                                             BSSE-1323"<<endl;
+        cout<<endl<<endl<<"                                            Press any key";
+        getch();
+        system("cls");
+    }
+    else if(want == '5')
+    {
+        return 0;
+    }
+    else
+        system("cls");
+    }
     return 0;
 }
 
@@ -1061,29 +1192,3 @@ void cutRow(location *ghost, int *change, int *dead, int *foodToken, char maze[R
         }
     }
 }
-
-/*
-Maze[0][] =  "###########################################################################";
-            Maze[1][] =  "# - - G - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - G - - #";
-            Maze[2][] =  "# - ########### - ########### - ############# - ########### - ######### - #";
-            Maze[3][] =  "# - #         # - #         # - #           # - #         # - #       # - #";
-            Maze[4][] =  "# - #         # - #         # - #           # - #         # - #       # - #";
-            Maze[5][] =  "# - ########### - ########### - ############# - ########### - ######### - #";
-            Maze[6][] =  "# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - #";
-            Maze[7][] = "# - ########### - ########### - ############# - ########### - ######### - #";
-            Maze[8][] = "# - #         # - #         # - #           # - #         # - #       # - #";
-            Maze[9][] = "# - #         # - #         # - #           # - #         # - #       # - #";
-            Maze[10][] = "# - ########### - ########### - ############# - ########### - ######### - #";
-            Maze[11][] = "# - - - - - - - - - - - - - - - - - - @ - - - - - - - - - - - - - - - - - #";
-            Maze[12][] =  "# - ########### - ########### - ############# - ########### - ######### - #";
-            Maze[13][] = "# - #         # - #         # - #           # - #         # - #       # - #";
-            Maze[14][] = "# - #         # - #         # - #           # - #         # - #       # - #";
-            Maze[15][] = "# - ########### - ########### - ############# - ########### - ######### - #";
-            Maze[16][] = "# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - #";
-            Maze[17][] = "# - ########### - ########### - ############# - ########### - ######### - #";
-            Maze[18][] = "# - #         # - #         # - #           # - #         # - #       # - #";
-            Maze[19][] = "# - #         # - #         # - #           # - #         # - #       # - #";
-            Maze[20][] = "# - ########### - ########### - ############# - ########### - ######### - #";
-            Maze[21][] = "# - - G - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - G - - #";
-            Maze[22][] = "###########################################################################";
-            */
